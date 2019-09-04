@@ -51,9 +51,11 @@ def test_search_with_collectorId(requests_mock):
 
 
 def test_search_without_collectorId(requests_mock):
+   """
+   Return a list of collectors and make sure it's more than 1
+   """
    requests_mock.get('https://api.sumologic.com/api/v1/collectors', [{'text': 'resp'}, {'text': collectors}])  # Mocked for session creation
 
-   
    coll = Collector(accessID='12345', accessKey='6789')
    resp = coll.search()
 

@@ -10,9 +10,9 @@ black = "*"
 pipenv = {path = ".",editable = true,extras = ["test"]}
 flake8 = ">=3.3.0,<4"
 pre-commit = "*"  # https://ljvmiranda921.github.io/notebook/2018/06/21/precommits-using-black-and-flake8/
-pytest = "*"
 requests = "*"
 requests-mock = "*"
+pytest = "*"
 
 [packages]
 requests = "*"

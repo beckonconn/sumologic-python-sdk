@@ -38,5 +38,11 @@ def _get_endpoint(session):
     """
     endpoint = 'https://api.sumologic.com/api/v1'
     response = session.get('https://api.sumologic.com/api/v1/collectors')  # Dummy call to get endpoint
-    endpoint = response.url.replace('/collectors', '')  # dirty hack to sanitise URI and retain domain
+    
+    if response.status_code == 401:
+        response = session.get('https://api.sumologic.com/api/v1/collectors')
+        endpoint = response.url.replace('/collectors', '')  # dirty hack to sanitise URI and retain domain
+    else:
+        endpoint = response.url.replace('/collectors', '') # dirty hack to sanitise URI and retain domain
+    
     return endpoint

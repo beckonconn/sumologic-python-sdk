@@ -27,7 +27,7 @@ jobs:
           command: |
             sudo pip install pipenv
             pipenv install --dev
-            pipenv run ../setup.py
+            pipenv run setup.py
 
       - save_cache:
           paths:

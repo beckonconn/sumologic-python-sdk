@@ -19,9 +19,10 @@ class Collector(object):
     def search(self, limit=None, offset=None, collectorId=None):
         """
           Method to search for collectors.
-          Two different ways:
+          Different ways:
             1) Search all Collectors using /collectors
             2) Get particular collector by ID using /collectors/$id
+            3) TODO: Add name search
         """
         if collectorId is not None:
             resp = self.sumoSess.get(self.endpoint + self.uri + '/' + str(collectorId))
@@ -34,11 +35,25 @@ class Collector(object):
             resp = self.sumoSess.get(self.endpoint + self.uri)
             return resp.json()['collectors']
 
-    def create():
-        pass
+    def hosted_collector_create(self, collectorJSON):
+        """
+        Per documentation, collector creation is only available for hosted collectors.
+        Uses POST method
+        Things needed:
+            1) Header - Doesn't change from application/json
+            2) JSON Payload
+        Returns: JSON response
+        """
+        headers = {"Content-Type": "application/json"}
+        resp = self.sumoSess.post(self.endpoint + self.uri, data=collectorJSON, headers=headers)
+        return resp
+
 
     def update():
         pass
 
     def delete():
+        pass
+
+    def offline():
         pass

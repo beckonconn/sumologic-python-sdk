@@ -4,22 +4,33 @@ import json
 
 
 from sumologic.collector import Collector
-
+# Test Wide Vars
+preppedJSONData = {
+    "collector": {
+        "collectorType": "Hosted",
+        "name": "My Hosted Collector",
+        "description": "An example Hosted Collector",
+        "category": "HTTP Collection",
+        "fields": {
+            "_budget": "test_budget"
+        }
+    }
+}
 
 def _json_response(request, context):
     collectors = {"collectors": [{"id": 2}, {"id": 3}, {"id": 4}, {"id": 45}]}
     modCollector = {"collectors": []}
-    context.status_code = 200
-
-    if "limit" in request.qs:
+    if "limit" in request.qs and request._request.method == 'GET':
+        context.status_code = 200
         limit = int(request.qs['limit'][0])
         for k in collectors['collectors'][:limit]:
             modCollector['collectors'].append(k)
         return modCollector
-
+    elif request._request.method == "POST":
+        context.status_code = 201
+        return "something"
     else:
         return collectors
-
 
 def test_collector_class_init_with_required_args(requests_mock):
     """
@@ -82,3 +93,15 @@ def test_collector_search_limit(requests_mock):
     resp = coll.search(limit=2)
 
     assert len(resp) == 2
+
+
+def test_collector_creation(requests_mock):
+    requests_mock.get('/api/v1/collectors', text='resp')
+    requests_mock.post('/api/v1/collectors',json=_json_response)
+
+    coll = Collector(accessID='12345', accessKey='6789')
+    created = coll.hosted_collector_create(preppedJSONData)
+
+    assert created.status_code == 201
+    assert created.text == '"something"'
+    assert "application/json" in created.request.headers['Content-Type']

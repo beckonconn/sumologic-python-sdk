@@ -26,12 +26,13 @@ class Collector(object):
         if collectorId is not None:
             resp = self.sumoSess.get(self.endpoint + self.uri + '/' + str(collectorId))
             return resp.json(), resp.headers['etag']
+        elif limit is not None or offset is not None:
+            p = {'limit': limit, 'offset': offset}
+            resp = self.sumoSess.get(self.endpoint + self.uri, params=p)
+            return resp.json()['collectors']
         else:
             resp = self.sumoSess.get(self.endpoint + self.uri)
             return resp.json()['collectors']
-
-
-
 
     def create():
         pass

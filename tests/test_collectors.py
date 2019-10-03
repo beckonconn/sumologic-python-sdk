@@ -5,16 +5,27 @@ import json
 
 from sumologic.collector import Collector
 
-collector = json.dumps({"collector": [{"id": 2}]})
 
-collectors = json.dumps({"collectors": [{"id": 3}, {"id": 4}, {"id": 45}]})
+def _json_response(request, context):
+    collectors = {"collectors": [{"id": 2}, {"id": 3}, {"id": 4}, {"id": 45}]}
+    modCollector = {"collectors": []}
+    context.status_code = 200
+
+    if "limit" in request.qs:
+        limit = int(request.qs['limit'][0])
+        for k in collectors['collectors'][:limit]:
+            modCollector['collectors'].append(k)
+        return modCollector
+
+    else:
+        return collectors
 
 
 def test_collector_class_init_with_required_args(requests_mock):
     """
     Ensure Class and variables are instantiated correctly
     """
-    requests_mock.get('https://api.sumologic.com/api/v1/collectors', text='test')
+    requests_mock.get('/api/v1/collectors', text='test')
     endpoint = 'https://api.sumologic.com/api/v1'
     collector = Collector(accessID='12345', accessKey='6789')
 
@@ -26,38 +37,48 @@ def test_collector_class_init_with_required_args(requests_mock):
 
 def test_collector_class_init_without_required_args(mocker):
     """
-    Ensure an error is provided when 
+    Ensure an error is provided when
     the required vars are not provided
     """
     mocker.patch('sumologic.collector.sumologic', side_effect=TypeError('Missing two required args'))
     with pytest.raises(TypeError):
-      Collector()
+        Collector()
 
 
-def test_search_with_collectorId(requests_mock):
-   """
-   Return a single Collector Record and eTag header
-   when provided with collector ID
-   """
-   requests_mock.get('https://api.sumologic.com/api/v1/collectors', text='resp')  # Mocked for session creation
-   requests_mock.get('https://api.sumologic.com/api/v1/collectors/2', headers={'ETag': "f58d12c6986f80d6ca25ed8a3943daa9" }, text=collector)
-   
-   coll = Collector(accessID='12345', accessKey='6789')
-   resp, respHead = coll.search(collectorId=2)
- 
-   assert isinstance(resp, dict) # ensure a dict is returned
-   assert resp['collector'][0]['id'] == 2 # all collectors have an ID associated and returned by them
-   assert respHead == "f58d12c6986f80d6ca25ed8a3943daa9"
+def test_collector_search_with_collectorId(requests_mock):
+    """
+    Return a single Collector Record and eTag header
+    when provided with collector ID
+    """
+    requests_mock.get('/api/v1/collectors', text='resp')  # Mocked for session creation
+    requests_mock.get('/api/v1/collectors/2', headers={'ETag': "f58d12c6986f80d6ca25ed8a3943daa9"}, json=_json_response)
+
+    coll = Collector(accessID='12345', accessKey='6789')
+    resp, respHead = coll.search(collectorId=2)
+
+    assert isinstance(resp, dict)  # ensure a dict is returned
+    assert resp['collectors'][0]['id'] == 2  # all collectors have an ID associated and returned by them
+    assert respHead == "f58d12c6986f80d6ca25ed8a3943daa9"
 
 
-def test_search_without_collectorId(requests_mock):
-   """
-   Return a list of collectors and make sure it's more than 1
-   """
-   requests_mock.get('https://api.sumologic.com/api/v1/collectors', [{'text': 'resp'}, {'text': collectors}])  # Mocked for session creation
+def test_collector_search_without_collectorId(requests_mock):
+    """
+    Return a list of collectors and make sure it's more than 1
+    """
+    requests_mock.get('/api/v1/collectors', [{'text': 'resp'}, {'json': _json_response}])
 
-   coll = Collector(accessID='12345', accessKey='6789')
-   resp = coll.search()
+    coll = Collector(accessID='12345', accessKey='6789')
+    resp = coll.search()
 
-   assert isinstance(resp, list)
-   assert len(resp) > 1
+    assert isinstance(resp, list)
+    assert len(resp) > 1
+
+
+def test_collector_search_limit(requests_mock):
+    requests_mock.get('/api/v1/collectors', text='resp')
+    requests_mock.get('/api/v1/collectors?limit=2', json=_json_response)
+
+    coll = Collector(accessID='12345', accessKey='6789')
+    resp = coll.search(limit=2)
+
+    assert len(resp) == 2

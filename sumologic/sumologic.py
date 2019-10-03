@@ -16,12 +16,14 @@ def sumologic(accessId, accessKey, endpoint=None, caBundle=None, cookieFile='coo
     if caBundle is not None:
         session.verify = caBundle
     cj = cookielib.FileCookieJar(cookieFile)
+    session.cookies = cj
     if endpoint is None:
         endpoint = _get_endpoint(session)
     if endpoint[-1:] == "/":
         raise Exception("Endpoint should not end with a slash character")
 
     return session, endpoint
+
 
 def _get_endpoint(session):
     """
@@ -38,11 +40,9 @@ def _get_endpoint(session):
     """
     endpoint = 'https://api.sumologic.com/api/v1'
     response = session.get('https://api.sumologic.com/api/v1/collectors')  # Dummy call to get endpoint
-    
     if response.status_code == 401:
         response = session.get('https://api.sumologic.com/api/v1/collectors')
         endpoint = response.url.replace('/collectors', '')  # dirty hack to sanitise URI and retain domain
     else:
-        endpoint = response.url.replace('/collectors', '') # dirty hack to sanitise URI and retain domain
-    
+        endpoint = response.url.replace('/collectors', '')  # dirty hack to sanitise URI and retain domain
     return endpoint

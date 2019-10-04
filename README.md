@@ -1,3 +1,7 @@
+[![CircleCI](https://circleci.com/gh/beckonconn/sumologic-python-sdk/tree/master.svg?style=svg)](https://circleci.com/gh/beckonconn/sumologic-python-sdk/tree/master)
+
+
+
 Sumo Logic Python SDK
 =====================
 

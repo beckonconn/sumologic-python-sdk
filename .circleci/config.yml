@@ -37,7 +37,7 @@ jobs:
       - run:
           name: run tests
           command: |
-            pipenv run  bandit  -r ../*
+            pipenv run  bandit  -c ./.bandit.yml -r ../*
 
       - store_artifacts:
           path: test-reports

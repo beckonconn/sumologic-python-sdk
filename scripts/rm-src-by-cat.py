@@ -12,8 +12,8 @@ cat = args[3]
 cs = sumo.collectors()
 
 for c in cs:
-	ss = sumo.sources(c['id'])
-	for s in ss:
-		if s['category'] == cat:
-			sv, _ = sumo.source(c['id'], s['id'])
-			print(sumo.delete_source(c['id'], sv).text)
+    ss = sumo.sources(c['id'])
+    for s in ss:
+        if s['category'] == cat:
+            sv, _ = sumo.source(c['id'], s['id'])
+            print(sumo.delete_source(c['id'], sv).text)

@@ -33,7 +33,7 @@ for c in cs:
                 print(r)
                 print(r.text)
                 time.sleep(delay)
-            #if svi['forceTimeZone'] == False:
+            #  if svi['forceTimeZone'] == False:
             #    svi['forceTimeZone'] = True
             #    svi[u'timeZone'] = u'UTC'
             #    r = sumo.update_source(c['id'], sv, etag)

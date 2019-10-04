@@ -12,5 +12,5 @@ field, string = args[3], args[4]
 cs = sumo.collectors()
 
 for c in cs:
-	if field in c and string in c[field]:
-		print(c)
+    if field in c and string in c[field]:
+        print(c)

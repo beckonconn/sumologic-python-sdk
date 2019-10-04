@@ -48,7 +48,6 @@ class Collector(object):
         resp = self.sumoSess.post(self.endpoint + self.uri, data=collectorJSON, headers=headers)
         return resp
 
-
     def update():
         pass
 

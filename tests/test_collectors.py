@@ -17,6 +17,7 @@ preppedJSONData = {
     }
 }
 
+
 def _json_response(request, context):
     collectors = {"collectors": [{"id": 2}, {"id": 3}, {"id": 4}, {"id": 45}]}
     modCollector = {"collectors": []}
@@ -31,6 +32,7 @@ def _json_response(request, context):
         return "something"
     else:
         return collectors
+
 
 def test_collector_class_init_with_required_args(requests_mock):
     """
@@ -97,7 +99,7 @@ def test_collector_search_limit(requests_mock):
 
 def test_collector_creation(requests_mock):
     requests_mock.get('/api/v1/collectors', text='resp')
-    requests_mock.post('/api/v1/collectors',json=_json_response)
+    requests_mock.post('/api/v1/collectors', json=_json_response)
 
     coll = Collector(accessID='12345', accessKey='6789')
     created = coll.hosted_collector_create(preppedJSONData)

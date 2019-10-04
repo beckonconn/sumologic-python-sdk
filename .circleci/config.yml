@@ -38,6 +38,7 @@ jobs:
           name: run tests
           command: |
             pipenv run  bandit  -c ./.bandit.yml -r ../*
+            pipenv run pytest -v ./tests/
 
       - store_artifacts:
           path: test-reports

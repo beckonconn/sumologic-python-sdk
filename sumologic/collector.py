@@ -1,6 +1,6 @@
 import json
 
-import sumologic.sumologic as sumologic
+from .common import _sumologic_session
 
 
 class Collector(object):
@@ -11,7 +11,7 @@ class Collector(object):
             raise TypeError('Missing required arguments: accessID and accessKey')
 
         # set session and endpoint
-        self.sumoSess, self.endpoint = sumologic(accessID, accessKey, caBundle=caBundle)
+        self.sumoSess, self.endpoint = _sumologic_session(accessID, accessKey, caBundle=caBundle)
 
         # set other class vars
         self.uri = uri
@@ -26,7 +26,7 @@ class Collector(object):
         """
         if collectorId is not None:
             resp = self.sumoSess.get(self.endpoint + self.uri + '/' + str(collectorId))
-            return resp.json(), resp.headers['etag']
+            return json.loads(resp.text), resp.headers['etag']
         elif limit is not None or offset is not None:
             p = {'limit': limit, 'offset': offset}
             resp = self.sumoSess.get(self.endpoint + self.uri, params=p)
@@ -46,7 +46,7 @@ class Collector(object):
         """
         headers = {"Content-Type": "application/json"}
         resp = self.sumoSess.post(self.endpoint + self.uri, data=collectorJSON, headers=headers)
-        return resp
+        return resp.json()
 
     def update():
         pass
@@ -54,5 +54,10 @@ class Collector(object):
     def delete():
         pass
 
-    def offline():
-        pass
+    def offline(self, days=100, limit=None, offset=None):
+        """
+        Displays list of offline collectors.
+        """
+        p = {'aliveBeforeDays': days, 'limit': limit, 'offset': offset}
+        resp = self.sumoSess.get(self.endpoint + self.uri + '/offline', params=p)
+        return resp.json()

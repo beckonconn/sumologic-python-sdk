@@ -1,5 +1,2 @@
-import sys
-if sys.version_info.major >= 3:
-    from sumologic.sumologic import *
-else:
-    from sumologic import *
+from sumologic import collector
+from sumologic import ingest_budgets

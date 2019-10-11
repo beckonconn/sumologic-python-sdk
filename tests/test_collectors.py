@@ -4,6 +4,7 @@ import json
 
 
 from sumologic.collector import Collector
+
 # Test Wide Vars
 preppedJSONData = {
     "collector": {
@@ -17,7 +18,6 @@ preppedJSONData = {
     }
 }
 
-
 def _json_response(request, context):
     collectors = {"collectors": [{"id": 2}, {"id": 3}, {"id": 4}, {"id": 45}]}
     modCollector = {"collectors": []}
@@ -29,7 +29,7 @@ def _json_response(request, context):
         return modCollector
     elif request._request.method == "POST":
         context.status_code = 201
-        return "something"
+        return preppedJSONData
     else:
         return collectors
 
@@ -53,7 +53,7 @@ def test_collector_class_init_without_required_args(mocker):
     Ensure an error is provided when
     the required vars are not provided
     """
-    mocker.patch('sumologic.collector.sumologic', side_effect=TypeError('Missing two required args'))
+    mocker.patch('sumologic.common._sumologic_session', side_effect=TypeError('Missing two required args'))
     with pytest.raises(TypeError):
         Collector()
 
@@ -104,6 +104,14 @@ def test_collector_creation(requests_mock):
     coll = Collector(accessID='12345', accessKey='6789')
     created = coll.hosted_collector_create(preppedJSONData)
 
-    assert created.status_code == 201
-    assert created.text == '"something"'
-    assert "application/json" in created.request.headers['Content-Type']
+    assert created == preppedJSONData
+
+
+def test_collector_offline_query(requests_mock):
+    requests_mock.get('/api/v1/collectors', text='resp')
+    requests_mock.get('/api/v1/collectors/offline?aliveBeforeDays=100', json=_json_response)
+
+    coll = Collector(accessID='12345', accessKey='6789')
+    offline = coll.offline()
+
+    assert "collectors" in offline
